@@ -1,0 +1,37 @@
+---
+title: "Midterm Project Proposal"
+author: "Anna Cook"
+date: "11/5/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Personal Statement
+
+I am interested in a career in data science as it pertains to issues of social justice. For example, I am interested in working to solve issues such as wealth disparity, access to education and healthcare, racial inequalities, etc. After graduating, I plan to apply for jobs at nonprofit organizations such as the ACLU. 
+
+For this project, I will be analyzing data about the poverty rate amongst various racial/ethnic groups across each state in the U.S. This aligns with my career goals because it is focused on identifying marginalized groups in the U.S. Looking at differences in things such as poverty rates across different racial groups is important because in order to enact change, you have to first identify exact where the problems lie, and who is being disadvantaged by the current systems that are in place. 
+
+### Question
+
+The main question I am trying to answer is, what is the relationship between race/ethnicity and poverty rate across US states? Through my analyses, I may be able to identify certain states or certain racial/ethnic groups who show a higher level of poverty than others. Or perhaps there are interesting interactions between states and race to be observed.
+
+The dataset I have chosen also includes information on the year that it was recorded. I have not yet decided if/how I will incorporate this information into my analyses. In addition, the website (linked below) includes a number of other datasets, which I may be able to try to combine in order to include other predictors in my model. However, I plan to start by keeping it simple.  
+
+### Data Source
+
+The data is from Diversitydatakids.org. The url below can be used to access the dataset, as well as a list of variable names and descriptions.
+
+http://data.diversitydatakids.org/dataset/17001_1_p-poverty-rate--percent--by-race-ethnicity/resource/b7cd5119-acd7-4514-8b65-a6d22608994d
+
+### Proposed Timeline
+
+-	EDA: Friday 11/13
+-	Data Processing: Friday 11/20
+-	Modeling and Validation: Friday 11/27
+-	Write up: Tuesday 12/1
+
+
