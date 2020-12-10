@@ -35,12 +35,18 @@ elections$vote_pct <- round((elections$candidatevotes / elections$totalvotes) * 
 elections <- elections %>% filter(party == "republican" | party == "democrat")
 ```
 ## Abstract 
-  The purpose of this analysis is to explore the relationships between race/ethnicity, poverty rate, and voting tendencies across states in the U.S. in recent years. The research question consists of two parts: 1) To assess the relationship between poverty rate and race/ethnicity across U.S. states, and 2) to assess the relationship between vote share in presidential elections and poverty rate across states. Two multilevel linear models were fit to the data with random intercepts for each state. The results show no significant association between the outcome variable (poverty rate), and the predictors (race/ethnicity and . However, there are important limitations to consider.
+  The purpose of this analysis is to explore the relationships between race/ethnicity, poverty rate, and voting tendencies across states in the U.S. in recent years. The research question consists of two parts: 1) To assess the relationship between poverty rate and race/ethnicity across U.S. states, and 2) to assess the relationship between vote share in presidential elections and poverty rate across states. Two models were fit to the data to explore these questions. The results show that 1) poverty rate varies greatly between different racial/ethnic groups, and 2) there is a positive linear relationship between poverty rate and vote share, such that states with higher overall poverty rates tend to have higher vote share percentages for Republican Candidates. While these results are interesting, there are important limitations to consider
 
 ## Introduction
-   Amid the Covid-19 pandemic as well as Donald Trump's presidency, the issues of wealth and racial disparities in the United States have become more exposed, and appear to be more prevalent now than ever before. The analysis presented here is aimed at better understanding how these issues are related to one another, by examining poverty rates for different racial/ethnic groups across states in the U.S., as well as recent presidential election results for those states. 
-   The research question is two-fold: First, I am interested in determining whether there is a relationship between poverty rate and racial/ethnic groups across states. For example, are there racial groups who are economically disadvantaged in some states but not in others? Second, I am interested in determining whether the poverty rate in various states is associated with the voting behavior in those states. 
-  The data was collected from two different sources. The first set of data was collected from diversitydatakids.org and contains information on the poverty rate for various racial/ethnic groups, organized by U.S. state and year (2009-2017). Although the original dataset included many racial/ethic groups, I chose to focus my analyses on only 6 of those: Native American, Black, Hispanic, White, Asian, and the total across the whole state's population. Figure 1 shows trends in poverty rates for two different states, Alabama and New York. Although these states greatly in both their politics and demographics, they show similar patterns amongst poverty rates, with the White, Asian, and Total groups having relatively low poverty rates, while the Native American, Black, and Hispanic groups had higher poverty rates. The full set of 50 states is shown in Figure __ in the appendix.
+
+### Overview
+   Amid the Covid-19 pandemic as well as Donald Trump's presidency, the issues of wealth and racial disparities in the United States have become more exposed, and appear to be more prevalent now than ever before. The analysis presented here is aimed at better understanding how these issues are related to one another by examining poverty rates for different racial/ethnic groups across states in the U.S., as well as recent presidential election results for those states. The research question is two-fold: First, I am interested in determining whether there is a relationship between poverty rate and racial/ethnic groups across states. For example, are there racial groups who are economically disadvantaged in some states but not in others? Second, I am interested in determining whether the poverty rate in various states is associated with the voting behavior in those states. 
+
+### Poverty/Race Data
+  The data was collected from two different sources. The first set of data was collected from diversitydatakids.org and contains information on the poverty rate for various racial/ethnic groups, organized by U.S. state and year (2009-2017). Although the original dataset included many racial/ethic groups, I chose to focus my analyses on only 6 of those: Native American, Black, Hispanic, White, Asian, and the total across the whole state's population. Figure 1 shows trends in poverty rates for two different states, Alabama and New York. Although these states greatly in both their politics and demographics, they show similar patterns among poverty rates, with the White, Asian, and Total groups having relatively low poverty rates, while the Native American, Black, and Hispanic groups had higher poverty rates. The full set of 50 states is shown in Figure 6 in the appendix.
+
+### Elections Data
+The second set of data was collected from dataverse.harvard.edu and contains information on U.S. presidental election results, organized by state and election year. The original dataset included elections dating back to 1976, but I filtered the dataset to include only 2012 and 2016 election since those are the only presidential election years are fell within the year range of the poverty dataset (2009-2017). Although there are only two elections in this final dataset, I believe these are important elections to analyze, as they were vastly different from one another. In 2012 Barack Obama, who was the first Black President of the United States, was re-elected for his second term, defeating Republican Mitt Romney. In 2016 Donald Trump was elected, running against Democrat Hillary Clinton, who made history as the first female presidential nominee. Not only did the office of the president change along party lines between these two elections, but it changed along racial and ideological lines as well. Therefore, these are important elections to explore. Figure 2 shows the percentage of vote share for the Democratic and Republican candidates for the 2012 and 2016 elections in Alabama and New York. This figure shows a strong contrast between voting behavior in these two states. The full set of 50 states is shown in figure 7 in the appendix. 
 
 ```{r, echo=FALSE, figures-side, fig.show="hold", out.width="50%", message=FALSE, warning=FALSE, fig.cap= "Trends in poverty rate amongst racial/ethnic groups in Alabama (left) and New York (right) from 2009 to 2017"}
 ggplot(data = subset(poverty_final, state == "Alabama"), 
@@ -59,9 +65,6 @@ ggplot(data = subset(poverty_final, state == "New York"),
 
 ```
   
-  The second set of data was collected from dataverse.harvard.edu and contains information on U.S. presidental election results, organized by state and election year. The original dataset included elections dating back to 1976, but I filtered the dataset to include only 2012 and 2016 election since those are the only presidential election years are fell within the year range of the poverty dataset (2009-2017). Although there are only two elections in this final dataset, I believe these are important elections to analyze, as they were vastly different from one another. In 2012 Barack Obama, who was the first Black President of the United States, was re-elected for his second term, defeating Republican Mitt Romney. In 2016 Donald Trump was elected, running against Democrat Hillary Clinton, who made history as the first female presidential nominee. Not only did the office of the president change along party lines between these two elections, but it changed along racial and ideological lines as well. Therefore, these are important elections to explore. 
-
-Figure 2 shows the percentage of vote share for the Democratic and Republican candidates for the 2012 and 2016 elections in Alabama and New York. This figure shows a strong contrast between voting behavior in these two states. The full set of 50 states is shown in figure __ in the appendix. 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%", fig.cap= "Percentage of Vote Share in Alabama (left) and New York (right) for Democrat and Republican Candidates in 2012 and 2016 Elections"}
 ggplot(data = subset(elections, state == "Alabama"), 
@@ -76,23 +79,63 @@ ggplot(data = subset(elections, state == "New York"),
   scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) 
 ```
 
-## Modeling
-  To examine an association between race/ethnicity and poverty rate for different states, I fit a multilevel linear model with intercepts varying for each state. The outcome variable is poverty rate, and the predictor variable was race/ethnicity. 
-  Next, to examine an association between voting behavior and poverty rate, I fit a second multilevel linear model, again with intercepts varying for each state. In this model, the output variable is the Republican vote share (calculated as votes for republican candidate as a percentage of total votes). The predictor variable was poverty rate.
-  In order to validate these models, I used a posterior predictive check to compare the data's distribution to that of predictive simulations, in addition to examining the residual plot for each model. The results of these validation methods are described below. The output of these models and residual plots are shown in the appendix, and the results are described below. 
+### Merged Data
+As part of the data cleaning and EDA process, the two sets of data had to be merged in order to examine a relationship between poverty rate and voting behavior. There appears to be a slight positive linear trend, where the higher the poverty rate in a state, the higher the vote share for the republican candidate (see Figure 3), and therefore, the lower the vote share for the democratic candidate. This relationship will be explored further in the regression analysis below.  
 
-## Results
-  
-```{r, echo=FALSE}
-
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= "Poverty Rate vs. Percentage of Vote Share for Republican Candidates in 2012 and 2016 Elections", fig.height=3, fig.width=4}
+data_merge <- left_join(poverty_final, elections, by = c("state", "year"))
+group_by_state <- subset(data_merge, party == "republican") %>% group_by(state, year) %>% summarize(poverty_rate = mean(poverty_rate), vote_pct = mean(vote_pct))
+ggplot() + geom_point(data = group_by_state, aes(x = poverty_rate, y = vote_pct, color = factor(year))) +
+  ggtitle("Poverty Rate vs. Republican Vote Share") + xlab("Poverty Rate") + ylab("Vote Share %")
 ```
 
+## Modeling
+  To examine an association between race/ethnicity and poverty rate for different states, I first fit a multilevel linear model with intercepts varying for each state. The outcome variable is poverty rate, and the predictor variable was race/ethnicity. By allowing the intercepts to vary, we will be able to explore differences in baseline poverty rates for individual states. 
+  Next, to examine an association between voting behavior and poverty rate, I fit a simple linear regression model. In this model, the output variable is the Republican vote share (calculated as votes for republican candidate as a percentage of total votes for each state). The predictor variable was poverty rate for each state. 
+  In order to validate these models, I used a posterior predictive check to compare the data distribution to that of predictive simulations, in addition to examining the residual plot for each model. The results of these models and validation methods are described below, and the outputs are shown in the appendix (see Figures 8 and 9).
+
+## Results
+
+### Multilevel Linear Model
+  The results of the multilinear model assessing the relationship between poverty rate and race/ethnicity are shown in Figure 8 in the appendix. The results for the fixed effects show that most racial/ethnic groups tend to be lower in poverty rate compared to the Native American Group. For example, the coefficient for Whites is -15.34, indicating that on average, the poverty rate for White people in the U.S. is 15.34 percentage points lower than that of Native Americans. The only racial group that showed a slightly higher poverty rate on average was Black people. For the random effects (state intercepts), each state varied in their intercepts with no clear pattern in the variation. Because there are 50 states, the random effects will not be discussed further, but these effects are shown in the appendix (see Figure 8). The residual plot is shown in Figure 4, and shows a cone-like shape, with some large residual values. This suggests that the model is not fitting the data very well. This issue is discused further below.
+  
+```{r, echo=FALSE,message=FALSE, warning=FALSE, fig.cap= "Residual plot for multilevel model shows a cone-like shape, suggesting non-constant variance", fig.height=3, fig.width=4}
+model1 <- stan_glmer(poverty_rate ~ race_ethnicity + (1|state), data = data_merge, refresh = 0)
+plot(fitted(model1), resid(model1), xlab = "Fitted Values", ylab = "Residuals", main = "Residual Plot for Model 1" )
+```
+
+### Simple Linear Model
+  The results of the simple linear model assessing the relationship between voting behavior and poverty rate are shown in figure 9 in the appendix. These results show that there is a positive, linear relationship between poverty rate and vote share for republican candidates (see Figure 5), which confirms the positive relationship suggested by the EDA. The coefficient for the poverty rate is 1.4, suggesting that on average the vote share for Republican candidates increases by 1.4 percentage points for every 1 percentage point increase in poverty rate. The implications and limitations of these results are discussed further in the next section.
+  
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= "Black line represents regression line from simple linear model", fig.show="hold", out.width="50%"}
+ggplot() + geom_point(data = group_by_state, aes(x = poverty_rate, y = vote_pct, color = factor(year))) +
+  ggtitle("Poverty Rate vs. Republican Vote Share") + xlab("Poverty Rate") + ylab("Vote Share %") + geom_abline(intercept = 22.1, slope = 1.4)
+
+model2 <- stan_glm(vote_pct ~ poverty_rate, data = group_by_state, refresh = 0)
+plot(fitted(model2), resid(model2), xlab = "Fitted Values", ylab = "Residuals", main = "Residual Plot for Model 2")
+```
 
 ## Discussion
 
-  One major limitation to this study is that the sample sizes are too small. Because there is only one poverty rate per racial/ethnic group per state per year, there isn't enough data to fit reliable models when using all of those variables as predictors. This probably may be partially alleviated by collapsing across states, but this wouldn't allow us to see how patterns vary by state. 
-  Another limitation is that while I am interested in voting behavior, my dataset only contained information on presidential elections which are held once every four years. This also leads to too small of sample sizes since the datasets only go back to 2008. The analyses may have been more reliable with more information; for example, if the dataset had contained voting behavior for more years, or on local elections as well as presidential elections. 
-  Both of these limitation led to poor performance of any of the models I tried fitting. Using different sets of predictors, collapsing across year, and using different types of models only led to very small changes, and in the end, no model fit the data very well. This was an important learning experience for me, as I now have a better sense of what to look for when I am searching for sufficient data to answer my research questions in the future. 
+### Multilevel Linear Model
+  The results of the multilevel linear model suggest that there are big differences in poverty rates between different racial/ethnic groups, but that these differences vary across U.S. states. On average, it appears that Black and Native people are the most economically disadvantaged in the U.S., while White people tend to have much lower poverty rates and Asian and Hispanic people tend to fall somewhere in the middle. While these results are not surprising, it is important to recognize the extent of the differences in poverty rate between different racial/ethnic groups. For example, according to this model, White people have a poverty rate that is on average 15.34 percentage points lower than Native Americans. This is a huge difference, and brings to light the importance of working toward equity for marginalized groups. However, this result must be taken with a grain of salt, as the residual plot (see Figure 4) and posterior predictive check (see Figure 8) show that the model is not an ideal fit for the data.
+  
+### Simple Linear Model
+  The results of the simple linear model suggest that there is a positive linear relationship between poverty rate and the percentage of vote share for Republican candidates in U.S. presidential elections. This also suggests that we should expect a negative linear relationship between poverty rate and the percentage of vote share for Democratic candidates. While we cannot make any causal claims about this result, it sparks curiosity as to what leads to this relationship. For example, are there systematic difference in party ideology such that Republican candidates appeal more to individuals in states with higher poverty rates? These are factors that political candidates could take into account when running their campaigns to try to secure more votes. The residual plot (see Figure 5) shows an equal spread around 0, with a few noticeable outliers. For both of these models, there are important limitations to consider.
+
+### Limitations and Future Directions
+  One major limitation to this study is that the sample sizes are too small. Because there is only one poverty rate per racial/ethnic group per state per year, there simply isn't enough data to fit reliable models. Another limitation is that while I am interested in voting behavior, my dataset only contained information on presidential elections which are held once every four years. This also leads to too small of sample sizes since the datasets only go back to 2009. The analyses may have been more reliable with more information; for example, if the dataset had contained voting behavior for more years, or on local elections as well as presidential elections. 
+
+Both of these limitation led to poor performance of any of the models I tried fitting (see residual plots in Figures 4, 5, and posterior predictive checks in Figures 8 and 9). Using different sets of predictors, collapsing across year, and using different types of models only led to very small changes in model fit, and in the end, no model fit the data very well. This was an important learning experience for me, as I now have a better sense of what to look for when I am searching for sufficient data to answer my research questions in the future. 
+
+
+
+
+
+
+
+
+
 
 ## Appendix
 
@@ -111,6 +154,21 @@ ggplot(data = elections, aes(x = year, y = vote_pct)) + geom_col(aes(fill = part
   ggtitle("Vote Share Percentage for 2012 and 2016 Presidential Elections") + 
   scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) + facet_wrap(vars(state))
 ```
+
+### Multilevel Linear Model Output and Validation
+```{r, echo=FALSE, fig.cap="Output and posterior predictive check for multilevel linear regression model. Posterior density plot shows that the model fit is not ideal.", fig.show="hold", out.width="50%"}
+model1 <- stan_glmer(poverty_rate ~ race_ethnicity + (1|state), data = data_merge, refresh = 0)
+fixef(model1)
+ranef(model1)
+pp_check(model1)
+```
+
+### Simple Linear Model Output and Validation
+```{r, echo=FALSE, fig.cap="Output and posterior predictive check for simple linear regression model. Posterior density plot shows that the model fit is not ideal.", fig.show="hold", out.width="50%"}
+print(model2)
+pp_check(model2)
+```
+
 
 ## References
 
