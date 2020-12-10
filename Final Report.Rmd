@@ -1,10 +1,8 @@
 ---
-title: "Midertm Project"
+title: "Midertm Project: Examining Relationships Between Poverty Rate, Race, and Voting Behavior"
 author: "Anna Cook"
 date: "12/10/2020"
-output: 
-  pdf_document
-    
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -27,28 +25,61 @@ poverty <- pivot_longer(data = poverty,
 poverty1 <- poverty %>% select(name, year, race_ethnicity, poverty_rate)
 poverty1 <- na.omit(poverty1)
 poverty1 <- poverty1 %>% rename(state = name)
-elections <- elections %>% filter(year >=2008)
+api <- poverty1 %>% filter(race_ethnicity=="api_est")
+aian <- poverty1 %>% filter(race_ethnicity=="aian_est") 
+poverty_final <- poverty1 %>% filter(race_ethnicity == "aian_est" | race_ethnicity == "asian_est" | race_ethnicity == "black_est" | race_ethnicity == "hisp_est" | race_ethnicity == "white_est" | race_ethnicity == "total_est")
+elections <- elections %>% filter(year >=2009)
 elections <- elections %>% select(-c(office, notes, version, writein, state_cen, state_ic, state_fips, state_po))
 elections <- na.omit(elections)
 elections$vote_pct <- round((elections$candidatevotes / elections$totalvotes) * 100, 2)
 elections <- elections %>% filter(party == "republican" | party == "democrat")
 ```
 ## Abstract 
-  The purpose of this analysis is to explore the relationships between race/ethnicity, poverty rate, and voting tendencies across states in the U.S. A multilevel linear model was fit to the data with random intercepts for each state. The results show ___. While there are important limitations to consider, these results suggest that... 
-
+  The purpose of this analysis is to explore the relationships between race/ethnicity, poverty rate, and voting tendencies across states in the U.S. in recent years. The research question consists of two parts: 1) To assess the relationship between poverty rate and race/ethnicity across U.S. states, and 2) to assess the relationship between vote share in presidential elections and poverty rate across states. Two multilevel linear models were fit to the data with random intercepts for each state. The results show no significant association between the outcome variable (poverty rate), and the predictors (race/ethnicity and . However, there are important limitations to consider.
 
 ## Introduction
-   Amid the Covid-19 pandemic as well as Donald Trump's presidency, the issues of wealth and racial disparities in the United States have become more exposed, and appear to be more prevalent now than ever before. The analysis presented here is aimed at better understanding how these issues are related to one another, by examining poverty rates for different racial/ethnic groups across states in the U.S., as well as presidential election results for those states. 
-   The research question is two-fold: First, I am interested in determining whether there is a relationship between poverty rate and racial/ethnic groups across states. For example, are there racial groups who are economically disadvantaged in some states/regions but not in others? Second, I am interested in determining whether the poverty rate and racial/ethnic groups in various states is associated with the voting behavior in those states. 
-  The data was collected from two different sources. The first set of data was collected from ____ and contains information on the poverty rate for various racial/ethnic groups, organized by U.S. state and year (2009-2017). Although the original dataset included __ racial/ethic groups, I chose to focus my analyses on only __ of those: black, hispanic, white, asian, and __. The second set of data was collected from ___ and contains information on U.S. presidental election results, organized by state and election year. The original dataset includes elections dating back to ___, but I filtered the dataset to include only elections between 2008-2016 since those years are most closely aligned with the poverty dataset. 
-  
-## Modeling
-  To examine an association between race/ethnicity and poverty rate for different states, I fit a multilevel linear model with intercepts varying for each state, using the rstanarm package. 
-  Next, to examine an association between voting behavior and race/ethnicity and poverty rate, I fit a multilevel linear model with intercepts varying for each state. 
-```{r}
+   Amid the Covid-19 pandemic as well as Donald Trump's presidency, the issues of wealth and racial disparities in the United States have become more exposed, and appear to be more prevalent now than ever before. The analysis presented here is aimed at better understanding how these issues are related to one another, by examining poverty rates for different racial/ethnic groups across states in the U.S., as well as recent presidential election results for those states. 
+   The research question is two-fold: First, I am interested in determining whether there is a relationship between poverty rate and racial/ethnic groups across states. For example, are there racial groups who are economically disadvantaged in some states but not in others? Second, I am interested in determining whether the poverty rate in various states is associated with the voting behavior in those states. 
+  The data was collected from two different sources. The first set of data was collected from diversitydatakids.org and contains information on the poverty rate for various racial/ethnic groups, organized by U.S. state and year (2009-2017). Although the original dataset included many racial/ethic groups, I chose to focus my analyses on only 6 of those: Native American, Black, Hispanic, White, Asian, and the total across the whole state's population. Figure 1 shows trends in poverty rates for two different states, Alabama and New York. Although these states greatly in both their politics and demographics, they show similar patterns amongst poverty rates, with the White, Asian, and Total groups having relatively low poverty rates, while the Native American, Black, and Hispanic groups had higher poverty rates. The full set of 50 states is shown in Figure __ in the appendix.
+
+```{r, echo=FALSE, figures-side, fig.show="hold", out.width="50%", message=FALSE, warning=FALSE, fig.cap= "Trends in poverty rate amongst racial/ethnic groups in Alabama (left) and New York (right) from 2009 to 2017"}
+ggplot(data = subset(poverty_final, state == "Alabama"), 
+       aes(x = year, y = poverty_rate, color = race_ethnicity)) + 
+  geom_path() + xlim(2009, 2017) + 
+  scale_x_continuous(name = waiver(), breaks = c(2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)) +
+  ggtitle("Poverty Rates in Alabama by Year and Race") +
+  scale_color_discrete(name = "Race/Ethnicity", labels = c("Native Am.", "Asian", "Black", "Hispanic", "Total", "White"))
+
+ggplot(data = subset(poverty_final, state == "New York"), 
+       aes(x = year, y = poverty_rate, color = race_ethnicity)) + 
+  geom_path() + xlim(2009, 2017) +
+  scale_x_continuous(name = waiver(), breaks = c(2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)) +
+  ggtitle("Poverty Rates in New York by Year and Race") +
+  scale_color_discrete(name = "Race/Ethnicity", labels = c("Native Am.", "Asian", "Black", "Hispanic", "Total", "White"))
 
 ```
-  In order to validate these models, I used a posterior predictive check to compare the data's distribution to that of predictive simulations, in addition to examining the residual plot for each model. The results of these validation methods are described below. 
+  
+  The second set of data was collected from dataverse.harvard.edu and contains information on U.S. presidental election results, organized by state and election year. The original dataset included elections dating back to 1976, but I filtered the dataset to include only 2012 and 2016 election since those are the only presidential election years are fell within the year range of the poverty dataset (2009-2017). Although there are only two elections in this final dataset, I believe these are important elections to analyze, as they were vastly different from one another. In 2012 Barack Obama, who was the first Black President of the United States, was re-elected for his second term, defeating Republican Mitt Romney. In 2016 Donald Trump was elected, running against Democrat Hillary Clinton, who made history as the first female presidential nominee. Not only did the office of the president change along party lines between these two elections, but it changed along racial and ideological lines as well. Therefore, these are important elections to explore. 
+
+Figure 2 shows the percentage of vote share for the Democratic and Republican candidates for the 2012 and 2016 elections in Alabama and New York. This figure shows a strong contrast between voting behavior in these two states. The full set of 50 states is shown in figure __ in the appendix. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%", fig.cap= "Percentage of Vote Share in Alabama (left) and New York (right) for Democrat and Republican Candidates in 2012 and 2016 Elections"}
+ggplot(data = subset(elections, state == "Alabama"), 
+       aes(x = year, y = vote_pct)) + geom_col(aes(fill = party)) + 
+  scale_fill_discrete(type = c("blue", "red")) + ylab(label = "Vote Share %") +
+  ggtitle("Alabama Vote Share % for Presidential Elections") + 
+  scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) 
+ggplot(data = subset(elections, state == "New York"), 
+       aes(x = year, y = vote_pct)) + geom_col(aes(fill = party)) + 
+  scale_fill_discrete(type = c("blue", "red")) + ylab(label = "Vote Share %") +
+  ggtitle("New York Vote Share % for Presidential Elections") + 
+  scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) 
+```
+
+## Modeling
+  To examine an association between race/ethnicity and poverty rate for different states, I fit a multilevel linear model with intercepts varying for each state. The outcome variable is poverty rate, and the predictor variable was race/ethnicity. 
+  Next, to examine an association between voting behavior and poverty rate, I fit a second multilevel linear model, again with intercepts varying for each state. In this model, the output variable is the Republican vote share (calculated as votes for republican candidate as a percentage of total votes). The predictor variable was poverty rate.
+  In order to validate these models, I used a posterior predictive check to compare the data's distribution to that of predictive simulations, in addition to examining the residual plot for each model. The results of these validation methods are described below. The output of these models and residual plots are shown in the appendix, and the results are described below. 
 
 ## Results
   
@@ -65,9 +96,22 @@ elections <- elections %>% filter(party == "republican" | party == "democrat")
 
 ## Appendix
 
-```{r, echo=FALSE}
-
+```{r, echo=FALSE, fig.cap="Trends in poverty rate amongst racial/ethnic groups from 2009 to 2017", fig.height= 6}
+ggplot(data = poverty_final, aes(x = year, y = poverty_rate, color = race_ethnicity)) + 
+  geom_path() + facet_wrap(vars(state)) +
+  scale_x_continuous(name = waiver(), breaks = c(2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)) +
+  ggtitle("Poverty Rates by Year and Race") +
+  scale_color_discrete(name = "Race/Ethnicity", labels = c("Native Am.", "Asian", "Black", "Hispanic", "Total", "White")) +
+  theme(axis.text.x = element_text(angle = 90))
 ```
+
+```{r, echo=FALSE, fig.cap="Vote share percentage in 2012 and 2016 U.S. presidential elections. Note: these figures do not include third party vote shares.", fig.height= 6}
+ggplot(data = elections, aes(x = year, y = vote_pct)) + geom_col(aes(fill = party)) + 
+  scale_fill_discrete(type = c("blue", "red")) + ylab(label = "Vote Share %") +
+  ggtitle("Vote Share Percentage for 2012 and 2016 Presidential Elections") + 
+  scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) + facet_wrap(vars(state))
+```
+
 ## References
 
 Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
@@ -92,3 +136,10 @@ Hadley Wickham (2020). tidyr: Tidy Messy Data. R package version 1.1.2.
   
 Stefan Milton Bache and Hadley Wickham (2014). magrittr: A Forward-Pipe Operator for
   R. R package version 1.5. https://CRAN.R-project.org/package=magrittr
+  
+Data Collected From:
+
+http://data.diversitydatakids.org/dataset/17001_1_p-poverty-rate--percent--by-race-ethnicity/resource/b7cd5119-acd7-4514-8b65-a6d22608994d
+
+https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/42MVDX
+

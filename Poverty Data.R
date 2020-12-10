@@ -30,12 +30,12 @@ api <- poverty1 %>% filter(race_ethnicity=="api_est")
 aian <- poverty1 %>% filter(race_ethnicity=="aian_est") 
 
 # filter to include only a few racial/ethnic groups for sake of simplicity/interpretation
-poverty_final <- poverty1 %>% filter(race_ethnicity == "aian_est" | race_ethnicity == "asian_est" | race_ethnicity == "black_est" | race_ethnicity == "hisp_est" | race_ethnicity == "white_est")
+poverty_final <- poverty1 %>% filter(race_ethnicity == "aian_est" | race_ethnicity == "asian_est" | race_ethnicity == "black_est" | race_ethnicity == "hisp_est" | race_ethnicity == "white_est" | race_ethnicity == "total_est")
 
 ## ELECTIONS DATA CLEANING
 
 # filter for only years similar to the poverty dataset, select only relevant columns, remove NAs
-elections <- elections %>% filter(year >=2008)
+elections <- elections %>% filter(year >=2009)
 elections <- elections %>% select(-c(office, notes, version, writein, state_cen, state_ic, state_fips, state_po))
 elections <- na.omit(elections)
 
@@ -62,38 +62,61 @@ ggplot(data = subset(poverty_final, year == 2017), aes(x = race_ethnicity, y = p
 # Alabama poverty rates, all years
 ggplot(data = subset(poverty_final, state == "Alabama"), 
        aes(x = year, y = poverty_rate, color = race_ethnicity)) + 
-  geom_path() + xlim(2009, 2017)
+  geom_path() + xlim(2009, 2017) + 
+  scale_x_continuous(name = waiver(), breaks = c(2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)) +
+  ggtitle("Poverty Rates in Alabama by Year and Race") +
+  scale_color_discrete(name = "Race/Ethnicity", labels = c("Native Am.", "Asian", "Black", "Hispanic", "Total", "White"))
 
-# Illinois poverty rates, all years
-ggplot(data = subset(poverty_final, state == "Illinois"), 
+# New York poverty rates, all years
+ggplot(data = subset(poverty_final, state == "New York"), 
        aes(x = year, y = poverty_rate, color = race_ethnicity)) + 
-  geom_path() + xlim(2009, 2017)
+  geom_path() + xlim(2009, 2017) +
+  scale_x_continuous(name = waiver(), breaks = c(2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)) +
+  ggtitle("Poverty Rates in New York by Year and Race") +
+  scale_color_discrete(name = "Race/Ethnicity", labels = c("Native Am.", "Asian", "Black", "Hispanic", "Total", "White"))
 
 # poverty rates all states, all years
 ggplot(data = poverty_final, aes(x = year, y = poverty_rate, color = race_ethnicity)) + 
-  geom_path() + facet_wrap(vars(state))
+  geom_path() + facet_wrap(vars(state)) +
+  scale_x_continuous(name = waiver(), breaks = c(2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)) +
+  ggtitle("Poverty Rates by Year and Race") +
+  scale_color_discrete(name = "Race/Ethnicity", labels = c("Native Am.", "Asian", "Black", "Hispanic", "Total", "White")) +
+  theme(axis.text.x = element_text(angle = 90))
+
 
 ## ELECTIONS DATA EDA
 
-# 2008 vote pct, all states
-ggplot(data = subset(elections, year == 2008), aes(x = party, y = vote_pct)) + 
-  geom_col(aes(fill = party)) + facet_wrap(vars(state))
-
 # 2012 vote pct, all states
 ggplot(data = subset(elections, year == 2012), aes(x = party, y = vote_pct)) + 
-  geom_col(aes(fill = party)) + facet_wrap(vars(state))
+  geom_col(aes(fill = party)) + facet_wrap(vars(state)) + 
+  scale_fill_discrete(type = c("blue", "red")) + ylab(label = "Vote Share %")
 
 # 2016 vote pct, all states
 ggplot(data = subset(elections, year == 2016), aes(x = party, y = vote_pct)) + 
-  geom_col(aes(fill = party)) + facet_wrap(vars(state))
+  geom_col(aes(fill = party)) + facet_wrap(vars(state)) + 
+  scale_fill_discrete(type = c("blue", "red")) + ylab(label = "Vote Share %")
 
-# Alabama vote pct, all years
+# Alabama vote pct
 ggplot(data = subset(elections, state == "Alabama"), 
-       aes(x = year, y = vote_pct, color = party)) + geom_path()
+       aes(x = year, y = vote_pct)) + geom_col(aes(fill = party)) + 
+  scale_fill_discrete(type = c("blue", "red")) + ylab(label = "Vote Share %") +
+  ggtitle("Vote Share Percentage for 2012 and 2016 Presidential Elections in Alabama") + 
+  scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) 
+
+# New York vote pct
+ggplot(data = subset(elections, state == "New York"), 
+       aes(x = year, y = vote_pct)) + geom_col(aes(fill = party)) + 
+  scale_fill_discrete(type = c("blue", "red")) + ylab(label = "Vote Share %") +
+  ggtitle("Vote Share Percentage for 2012 and 2016 Presidential Elections in New York") + 
+  scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) 
+
 
 # all states vote pct, all years
-ggplot(data = elections, aes(x = year, y = vote_pct, color = party)) + 
-  geom_path() + facet_wrap(vars(state))
+ggplot(data = elections, aes(x = year, y = vote_pct)) + geom_col(aes(fill = party)) + 
+  scale_fill_discrete(type = c("blue", "red")) + ylab(label = "Vote Share %") +
+  ggtitle("Vote Share Percentage for 2012 and 2016 Presidential Elections") + 
+  scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) + facet_wrap(vars(state))
+
 
 ## DATA MERGING
 
@@ -120,6 +143,7 @@ ggplot() + geom_point(data = data_merge, aes(x = year, y = vote_pct, color = par
 ## MODELING
 
 fit1 <- stan_glm(poverty_rate ~ race_ethnicity + state, data = data_merge, refresh = 0)
+print(fit1)
 pp_check(fit1)  
 plot(fitted(fit1), resid(fit1))
 
@@ -131,16 +155,23 @@ fit3 <- stan_glmer(poverty_rate ~ race_ethnicity + (1|year), data = data_merge)
 pp_check(fit3)
 plot(fitted(fit3), resid(fit3))
 
-fit4 <- stan_glm(vote_pct ~ race_ethnicity + state, data = data_merge, refresh = 0)
+fit4 <- stan_glm(vote_pct ~ race_ethnicity + state, data = subset(data_merge, party = "republican"), refresh = 0)
 pp_check(fit4)
 plot(fitted(fit4), resid(fit4))
 
 fit5 <- stan_glmer(poverty_rate ~ race_ethnicity + (1|state), data = data_merge)
+print(fit5)
+summary(fit5)
 pp_check(fit5)
 plot(fitted(fit5), resid(fit5))
 
-fit6 <- stan_glm()
+fit6 <- lmer(poverty_rate ~ race_ethnicity + (1|state), data = data_merge)
+print(fit6)
 
+fit7 <- stan_glmer(vote_pct ~ race_ethnicity + (1|state), data = subset(data_merge, party = "republican"), refresh = 0)
+fit7
+pp_check(fit7)
+plot(fitted(fit7), resid(fit7))
 
 ## CITATIONS
 
