@@ -25,10 +25,6 @@ poverty1 <- poverty %>% select(name, year, race_ethnicity, poverty_rate)
 poverty1 <- na.omit(poverty1)
 poverty1 <- poverty1 %>% rename(state = name)
 
-# might need to remove api_est and/or others since it isn't represented in many states/years
-api <- poverty1 %>% filter(race_ethnicity=="api_est")
-aian <- poverty1 %>% filter(race_ethnicity=="aian_est") 
-
 # filter to include only a few racial/ethnic groups for sake of simplicity/interpretation
 poverty_final <- poverty1 %>% filter(race_ethnicity == "aian_est" | race_ethnicity == "asian_est" | race_ethnicity == "black_est" | race_ethnicity == "hisp_est" | race_ethnicity == "white_est" | race_ethnicity == "total_est")
 
@@ -45,9 +41,6 @@ elections$vote_pct <- round((elections$candidatevotes / elections$totalvotes) * 
 # filter for only major parties (all other parties had relatively very few votes)
 elections <- elections %>% filter(party == "republican" | party == "democrat")
 
-# not sure how to create a variable to indicate the winner of the state
-# elections$winner <- ifelse(subset(elections, party == "republican")$vote_pct > 50 & subset(elections, party == "democrat")$vote_pct < 50, "republican", "democrat")
-elections$winner <- ifelse(elections$vote_pct >= 49.4, 1, 0)
 
 ## POVERTY DATA EDA
 
@@ -118,21 +111,19 @@ ggplot(data = elections, aes(x = year, y = vote_pct)) + geom_col(aes(fill = part
   scale_x_continuous(name = waiver(), breaks = c(2012, 2016)) + facet_wrap(vars(state))
 
 
-## DATA MERGING
-
-data_merge <- left_join(poverty_final, elections, by = c("state", "year"))
-
 
 ## MERGED DATA EDA
 
-# summarize across years
+data_merge <- left_join(poverty_final, elections, by = c("state", "year"))
+
+# summarize across years/race
 group_by_state <- subset(data_merge, party == "republican") %>% group_by(state, year) %>% summarize(poverty_rate = mean(poverty_rate), vote_pct = mean(vote_pct))
 
 # poverty rate vs. republican vote share
 ggplot() + geom_point(data = group_by_state, aes(x = poverty_rate, y = vote_pct, color = factor(year))) +
   ggtitle("Poverty Rate vs. Vote Share for Republican Candidate") + xlab("Poverty Rate") + ylab("Vote Share %")
 
-## Plots tried out but not informative for research question--ignore these ##
+## Plots tried out but not informative for research question--ignore these
 # summarize across states
 group_by_race <- data_merge %>% group_by(race_ethnicity, party, year) %>% summarize(poverty_rate = mean(poverty_rate), vote_pct = mean(vote_pct))
 
@@ -210,6 +201,8 @@ fit11
 summary(fit11)
 pp_check(fit11)
 plot(fitted(fit11), resid(fit11))
+
+
 
 ## CITATIONS
 
